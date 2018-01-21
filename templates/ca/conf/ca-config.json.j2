@@ -1,0 +1,49 @@
+{
+  "signing": {
+    "default": {
+      "expiry": "{{ cfssl_default_expiry }}",
+      "oscp": "http://{{ cfssl_ocsp_address }}:{{ cfssl_ocsp_port }}",
+      "crl_url": "http://{{ cfssl_api_server_address }}:{{ cfssl_api_server_port }}/crl",
+      "usages": [
+        "signing",
+        "key encipherment",
+        "client auth"
+      ]
+    },
+    "profiles": {
+      "ocsp": {
+				"expiry": "{{ cfssl_ocsp_expiry }}",
+				"usages": [
+          "ocsp signing",
+          "digital signature"
+				]
+			},
+      "intermediate-ca": {
+        "expiry": "{{ cfssl_ca_expiry }}",
+        "ca_constraint": {
+          "is_ca": true
+        },
+        "usages": [
+          "cert sign",
+          "crl sign"
+        ]
+      },
+			"server": {
+				"expiry": "{{ cfssl_server_expiry }}",
+				"usages": [
+					"server auth",
+					"signing",
+					"key encipherment"
+				]
+			},
+			"client": {
+				"expiry": "{{ cfssl_client_expiry }}",
+				"usages": [
+					"client auth",
+					"signing",
+					"key encipherment"
+				]
+			}
+    }
+  }
+}

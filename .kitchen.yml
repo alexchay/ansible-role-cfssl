@@ -1,0 +1,41 @@
+---
+driver:
+  name: vagrant
+  customize:
+    memory: 1024
+    cpuexecutioncap: 50
+
+provisioner:
+  hosts: box
+  name: ansible_playbook
+  ansible: verbose
+  ansible_verbosity: 2
+  require_chef_for_busser: false
+  idempotency_test: true
+  #requirements_path: requirements.yml
+
+transport:
+  max_ssh_sessions: 1
+
+platforms:
+  - name: centos-7
+    driver_plugin: vagrant
+    driver_config:
+      box: centos/7
+    provisioner:
+      require_pip: true
+    #verifier:
+      #sudo: true
+
+verifier:
+  name: serverspec
+
+suites:
+  - name: full-ca-and-ocsp
+    provisioner:
+      additional_copy_path: spec/fixtures/certdb/certdb.sql
+    verifier:
+      default_pattern: false
+      patterns:
+        - roles/ansible-role-cfssl/spec/*/*_spec.rb
+      sudo: true

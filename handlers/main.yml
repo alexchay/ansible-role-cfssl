@@ -1,0 +1,15 @@
+---
+
+- name: restart cfssl-ocsp service
+  systemd:
+    name: cfssl-ocsp
+    state: restarted
+  become: true
+  become_user: root
+
+- name: restart cfssl service
+  systemd:
+    name: cfssl
+    state: restarted
+  become: true
+  become_user: root

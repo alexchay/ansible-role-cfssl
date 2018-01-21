@@ -1,0 +1,16 @@
+{
+  "CN": "{{ cfssl_common_name }}",
+  "key": {
+    "algo": "{{ cfssl_algorithm }}",
+    "size": {{ cfssl_size }}
+  },
+  "names": [
+    {
+      "O": "{{ cfssl_organization}}",
+      "OU": "{{ cfssl_organizational_unit }}",
+      "C": "{{ cfssl_country }}",
+      "ST": "{{ cfssl_state }}",
+      "L": "{{ cfssl_city }}"
+    }
+  ]
+}

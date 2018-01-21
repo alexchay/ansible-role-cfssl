@@ -1,0 +1,51 @@
+---
+# Configure and start ocsp responder for the cfssl wapi
+# TODO: Support non-systemd init scripts
+- name: create ocsp dir
+  file:
+    path: "{{ cfssl_ocsp_dir }}"
+    state: directory
+    mode: 0400
+  become: true
+  become_user: root
+
+- name: create ocsp-csr.json
+  template:
+    src: csr.json.j2
+    dest: "{{ cfssl_ocsp_csr }}"
+    mode: 0400
+  become: true
+  become_user: root
+
+- name: generate ocsp certificate
+  shell: "{{ cfssl_bin }} gencert -ca {{ cfssl_ca_cert }} -ca-key {{ cfssl_ca_key }} -config {{ cfssl_ca_conf }} -profile \"ocsp\" {{ cfssl_ocsp_csr }} | {{ cfssl_cfssljson_bin }} -bare ocsp-server"
+  args:
+    chdir: "{{ cfssl_ocsp_dir }}"
+    creates: "{{ cfssl_ocsp_key }}"
+  become: true
+  become_user: root
+
+- name: create ocsp response
+  shell: "{{ cfssl_bin }} ocspdump -db-config {{ cfssl_certdb_conf }} > {{ cfssl_ocsp_response }}"
+  args:
+    chdir: "{{ cfssl_ocsp_dir }}"
+    creates: "{{ cfssl_ocsp_response }}"
+  become: true
+  become_user: root
+
+- name: cfssl ocsp service file
+  template:
+    src: ca/cfssl-ocsp.service.j2
+    dest: /etc/systemd/system/cfssl-ocsp.service
+    mode: 0755
+  become: true
+  become_user: root
+
+- name: cfssl ocsp server
+  systemd:
+    name: cfssl-ocsp
+    state: started
+    daemon_reload: true
+  become: true
+  become_user: root
+

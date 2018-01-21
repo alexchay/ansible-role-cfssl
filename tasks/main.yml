@@ -1,0 +1,32 @@
+---
+
+- name: get os specific variables
+  include_vars: "{{ ansible_system }}.yml"
+
+- import_tasks: install.yml
+  tags:
+    - install
+
+- import_tasks: ca/root.yml
+  when: cfssl_configure_root_ca
+  tags:
+    - root-ca
+    - ca
+
+- import_tasks: ca/intermediate.yml
+  when: cfssl_configure_ca
+  tags:
+    - ca
+
+- import_tasks: ca/ocsp.yml
+  when: cfssl_configure_ocsp
+  tags:
+    - ca
+    - api
+    - ocsp
+
+- import_tasks: ca/api-server.yml
+  when: cfssl_configure_api_server
+  tags:
+    - ca
+    - api

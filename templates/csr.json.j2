@@ -1,0 +1,17 @@
+{
+	"CN": "{{ ansible_fqdn }}",
+	"key": {
+		"algo": "{{ cfssl_algorithm }}",
+		"size": {{ cfssl_size }}
+	},
+	"hosts": [
+{% for ip in ansible_all_ipv4_addresses %}
+    "{{ ip }}",
+{% endfor %}
+{% for name in cfssl_cert_hosts %}
+		"{{ name }}",
+{% endfor %}
+		"{{ ansible_fqdn }}",
+		"{{ ansible_hostname }}"
+	]
+}

@@ -1,0 +1,52 @@
+---
+# Create keys to act as an intermediate CA which will be used for all
+# signing while the root key will be hidden beneath my mattress
+# NOTE: This requires a DB be setup which is NOT done as apart of this role
+#       this will need to be dealt with at the playbook level
+- name: create ca directory
+  file:
+    path: "{{ cfssl_ca_dir }}"
+    state: directory
+    mode: 0400
+  become: true
+  become_user: root
+
+- name: create ca config directory
+  file:
+    path: "{{ cfssl_conf_dir }}"
+    state: directory
+    mode: 0400
+  become: true
+  become_user: root
+
+- name: create ca config
+  template:
+    src: ca/conf/ca-config.json.j2
+    dest: "{{ cfssl_ca_conf }}"
+    mode: 0400
+  become: true
+  become_user: root
+
+- name: create db config
+  template:
+    src: ca/conf/certdb-config.json.j2
+    dest: "{{ cfssl_certdb_conf }}"
+    mode: 0600
+  become: true
+  become_user: root
+
+- name: create ca-csr.json
+  template:
+    src: ca/ca-csr.json.j2
+    dest: "{{ cfssl_ca_csr }}"
+    mode: 0400
+  become: true
+  become_user: root
+
+- name: generate ca certificate
+  shell: "{{ cfssl_bin }} gencert -ca {{ cfssl_root_ca_cert }} -ca-key {{ cfssl_root_ca_key }} -config \"{{ cfssl_ca_conf }}\" -profile \"intermediate-ca\" {{ cfssl_ca_csr }} | {{ cfssl_cfssljson_bin }} -bare ca-server"
+  args:
+    chdir: "{{ cfssl_ca_dir }}"
+    creates: "{{ cfssl_ca_key }}"
+  become: true
+  become_user: root

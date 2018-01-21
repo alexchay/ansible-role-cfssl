@@ -1,0 +1,19 @@
+---
+
+- name: create cfssl directory
+  file:
+    path: "{{ cfssl_root_dir }}"
+    state: directory
+    mode: 0644
+  become: true
+  become_user: root
+
+- name: download cfssl components
+  get_url:
+    url: '{{ cfssl_source }}/R{{ cfssl_version }}/{{ item.key }}_{{ ansible_system|lower }}-{{ cfssl_arch }}'
+    dest: '{{ cfssl_install_dir }}/{{ item.key }}'
+    checksum: '{{ item.value.checksum }}'
+    mode: '0755'
+  with_dict: '{{ cfssl_packages }}'
+  become: true
+  become_user: root

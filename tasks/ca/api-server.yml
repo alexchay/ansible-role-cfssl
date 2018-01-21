@@ -1,0 +1,18 @@
+---
+# Configure cfssl wapi service and ensure it's running
+# TODO: Support non-systemd init scripts
+- name: cfssl service file
+  template:
+    src: ca/cfssl.service.j2
+    dest: /etc/systemd/system/cfssl.service
+    mode: 0755
+  become: true
+  become_user: root
+
+- name: cfssl server
+  systemd:
+    name: cfssl
+    state: started
+    daemon_reload: true
+  become: true
+  become_user: root

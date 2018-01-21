@@ -1,0 +1,15 @@
+[Unit]
+Description=Cloudflare SSL API Server
+After=network.target
+
+[Service]
+Type=simple
+ExecStart={{ cfssl_bin }} serve -address {{ cfssl_api_server_address }} \
+-port {{ cfssl_api_server_port }} -ca-key {{ cfssl_ca_key}} -ca {{ cfssl_ca_cert}} \
+-config {{ cfssl_ca_conf }} {% if cfssl_configure_certdb %}\
+-db-config={{ cfssl_certdb_conf }}{% endif %} {% if cfssl_configure_ocsp %}\
+-responder={{ cfssl_ocsp_cert }} -responder-key={{ cfssl_ocsp_key }}{% endif %}
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target

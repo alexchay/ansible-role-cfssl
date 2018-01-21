@@ -1,0 +1,84 @@
+---
+# I hacked the crap out of this to make sure all the pre-reqs for cfssl
+# are present and the tests can run. Ideally this should be done with
+# other ansible roles and a requirements.yml. Which, I'm going to need to
+# use once I start testing this on distros aside from centos7
+- hosts: box
+  become: true
+  remote_user: vagrant
+  tasks:
+    - name: install pre-req packages
+      package:
+        name: "{{ item }}"
+      with_items:
+        - "git"
+        - "go"
+        - "python-virtualenv"
+        - "postgresql-server"
+        - "postgresql-contrib"
+
+    - name: get required python packages
+      easy_install:
+        name: "{{ item }}"
+      with_items:
+        - "pip"
+
+    - name: get psycopg2
+      pip:
+        name: psycopg2
+
+    - name: postgres initdb
+      command: postgresql-setup initdb
+      args:
+        creates: /var/lib/pgsql/data/*
+
+    - name: permissions for vagrant user to connect with pw
+      lineinfile:
+        path: /var/lib/pgsql/data/pg_hba.conf
+        insertbefore: 'host\s+all\s+all\s+::1/128\s+ident'
+        line: "host certdb vagrant ::1/128 md5"
+
+    - name: start postgres
+      service:
+        name: postgresql
+        state: started
+
+    - name: create vagrant user
+      postgresql_user:
+        name: vagrant
+        password: vagrant
+      become_user: postgres
+
+    - name: create certdb
+      postgresql_db:
+        name: certdb
+        owner: vagrant
+      become_user: postgres
+
+    - name: copy over certdb sql file
+      copy:
+        src: certdb.sql
+        dest: /var/tmp/certdb.sql
+
+    - name: check for certdb tables
+      shell: psql -d certdb -c "select table_name from information_schema.tables where table_schema='public' and table_type='BASE TABLE'"
+      register: cfssl_certdb_tables
+      changed_when: false
+      become_user: postgres
+
+    - name: create certdb tables
+      shell: psql certdb < /var/tmp/certdb.sql
+      when: cfssl_certdb_tables.stdout.find('certificates') == -1
+      become_user: postgres
+
+- hosts: box
+  remote_user: vagrant
+  vars:
+    - cfssl_configure_root_ca: true
+    - cfssl_configure_api_server: true
+    - cfssl_configure_certdb: true
+    - cfssl_configure_ca: true
+    - cfssl_configure_ocsp: true
+  roles:
+    - ansible-role-cfssl
+    #- { role: "../../../.." }

@@ -1,0 +1,26 @@
+---
+# Creating the initial key to act as the root CA for CFSSL
+# this will be used to sign intermediate certs to be used
+- name: create root ca directory
+  file:
+    path: "{{ cfssl_root_ca_dir }}"
+    state: directory
+    mode: 0400
+  become: true
+  become_user: root
+
+- name: create root-csr.json
+  template:
+    src: ca/ca-csr.json.j2
+    dest: "{{ cfssl_root_ca_csr }}"
+    mode: 0400
+  become: true
+  become_user: root
+
+- name: generate root ca certificate
+  shell: "{{ cfssl_bin }} gencert -initca root-csr.json | {{ cfssl_cfssljson_bin }} -bare ca"
+  args:
+    chdir: "{{ cfssl_root_ca_dir }}"
+    creates: "{{ cfssl_root_ca_dir }}/ca-key.pem"
+  become: true
+  become_user: root

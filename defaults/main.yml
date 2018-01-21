@@ -1,0 +1,56 @@
+---
+
+cfssl_version: 1.2
+cfssl_source: https://pkg.cfssl.org
+cfssl_install_dir: /usr/local/bin
+cfssl_bin: "{{ cfssl_install_dir }}/cfssl"
+cfssl_cfssljson_bin: "{{ cfssl_install_dir }}/cfssljson"
+cfssl_root_dir: /etc/cfssl
+
+cfssl_conf_dir: "{{ cfssl_root_dir }}/conf"
+cfssl_ca_conf: "{{ cfssl_conf_dir }}/ca-config.json"
+
+cfssl_configure_root_ca: false
+cfssl_root_ca_dir: "{{ cfssl_root_dir }}/root"
+cfssl_root_ca_csr: "{{ cfssl_root_ca_dir }}/root-csr.json"
+cfssl_root_ca_cert: "{{ cfssl_root_ca_dir }}/ca.pem"
+cfssl_root_ca_key: "{{ cfssl_root_ca_dir }}/ca-key.pem"
+
+cfssl_configure_api_server: false
+cfssl_api_server_address: 127.0.0.1
+cfssl_api_server_port: 8888
+
+cfssl_configure_certdb: false
+cfssl_certdb_conf: "{{ cfssl_conf_dir }}/certdb-config.json"
+cfssl_certdb_driver: postgres
+cfssl_certdb_data_source: postgres://vagrant:vagrant@localhost/certdb?sslmode=disable
+
+cfssl_configure_ca: false
+cfssl_ca_dir: "{{ cfssl_root_dir }}/ca"
+cfssl_ca_csr: "{{ cfssl_ca_dir }}/ca-csr.json"
+cfssl_ca_cert: "{{ cfssl_ca_dir }}/ca-server.pem"
+cfssl_ca_key: "{{ cfssl_ca_dir }}/ca-server-key.pem"
+cfssl_ca_expiry: 43800h
+
+cfssl_configure_ocsp: false
+cfssl_ocsp_dir: "{{ cfssl_root_dir }}/ocsp"
+cfssl_ocsp_csr: "{{ cfssl_ocsp_dir }}/ocsp-csr.json"
+cfssl_ocsp_cert: "{{ cfssl_ocsp_dir }}/ocsp-server.pem"
+cfssl_ocsp_key: "{{ cfssl_ocsp_dir }}/ocsp-server-key.pem"
+cfssl_ocsp_response: "{{ cfssl_ocsp_dir }}/ocspdump.txt"
+cfssl_ocsp_address: 127.0.0.1
+cfssl_ocsp_port: 8889
+cfssl_ocsp_expiry: 43800h
+
+cfssl_common_name: Certificate Authority
+cfssl_algorithm: rsa
+cfssl_size: 4096
+cfssl_country: US
+cfssl_state: State
+cfssl_city: City-Name
+cfssl_organization: my-org
+cfssl_organizational_unit: my-org-ou
+cfssl_cert_hosts: []
+cfssl_default_expiry: 43800h
+cfssl_server_expiry: 43800h
+cfssl_client_expiry: 43800h

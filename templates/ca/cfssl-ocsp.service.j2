@@ -1,0 +1,13 @@
+[Unit]
+Description=Cloudflare SSL OCSP Responder Server
+After=network.target cfssl.service
+
+[Service]
+Type=simple
+ExecStart={{ cfssl_bin }} ocspserve -address {{ cfssl_ocsp_address}} \
+-port {{ cfssl_ocsp_port }} -responses {{ cfssl_ocsp_response }}
+
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
